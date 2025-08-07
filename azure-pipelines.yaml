@@ -1,0 +1,31 @@
+pool:
+  vmImage: 'ubuntu-latest'
+
+trigger:
+  branches:
+    include:
+      - main
+
+steps:
+- task: CopyFiles@2
+  displayName: 'Copy Files to ${Build.ArtifactStagingDirectory}/Templates'
+  inputs:
+    SourceFolder: deployment
+    Contents: '*.json'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/Templates'
+
+- task: Npm@1
+  displayName: 'npm custom'
+  inputs:
+    command: 'custom'
+    verbose: false
+    customCommand: 'install --production'
+
+- task: ArchiveFiles@2
+  displayName: 'Archive $(Build.SourcesDirectory)'
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)'
+    includeRootFolder: false
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
